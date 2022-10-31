@@ -5,6 +5,40 @@
 ต้อง reset password elastic ใหม่ เพราะว่า ระบบไม่ได้สร้างมาให้ command อยู่ด้านล่าง
 ```
 
+
+```txt
+logstat ssl
+https://www.elastic.co/guide/en/beats/filebeat/current/configuring-ssl-logstash.html
+
+# ถ้า error ให้เช็ค ssl_certificate_authorities ว่าใส่ครบหรือไม่ เพราะเป็น self-cer และถ้าเพิ่มใหม่ต้อง restart service ด้วย
+
+อย่าลืม chmod ให้ read ได้
+
+#Server
+openssl genrsa 4096 > server_rsa.key
+openssl pkcs8 -inform PEM -in server_rsa.key -topk8 -nocrypt -outform PEM -out server.key
+openssl req -key server.key -new -out server.csr
+openssl x509 -signkey server.key -in server.csr -req -days 5475 -out server.crt
+
+
+
+
+openssl pkcs8 -in config/certs/logstash.key -topk8 -nocrypt -out config/certs/logstash.pkcs8.key
+
+เอา crt ไปใส่ใน ssl_certificate_authorities ของ client
+
+#client
+openssl genrsa 4096 > client_rsa.key
+openssl pkcs8 -inform PEM -in client_rsa.key -topk8 -nocrypt -outform PEM -out client.key
+openssl req -key client.key -new -out client.csr
+openssl x509 -signkey client.key -in client.csr -req -days 5475 -out client.crt
+
+ถ้าใช้คนละ client.key เอา crt ของทุก client ไปใส่ใน ssl_certificate_authorities ของ server
+ถ้า client อยากใช้ master key เดียวกันให้ใช้คำสั่งนี้ จะข้ามการสร้าง csr ได้แต่ต้องกรอกข้อมูลให้ตรง แต่ข้อดีของการมี csr คือ เราสามารถใช้ template ข้อมูลเดิมในการสร้าง crt ได้เลย
+
+openssl req -new -x509 -nodes -sha256 -days 5475 -key client.key -out client.crt
+
+```
 [![Elastic Stack version](https://img.shields.io/badge/Elastic%20Stack-8.4.3-00bfb3?style=flat&logo=elastic-stack)](https://www.elastic.co/blog/category/releases)
 [![Build Status](https://github.com/deviantony/docker-elk/workflows/CI/badge.svg?branch=main)](https://github.com/deviantony/docker-elk/actions?query=workflow%3ACI+branch%3Amain)
 [![Join the chat at https://gitter.im/deviantony/docker-elk](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/deviantony/docker-elk?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
