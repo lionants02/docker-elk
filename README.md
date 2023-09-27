@@ -10,6 +10,9 @@
 logstat ssl
 https://www.elastic.co/guide/en/beats/filebeat/current/configuring-ssl-logstash.html
 
+filebeat
+https://www.elastic.co/guide/en/beats/filebeat/current/filebeat-installation-configuration.html
+
 # ถ้า error ให้เช็ค ssl_certificate_authorities ว่าใส่ครบหรือไม่ เพราะเป็น self-cer และถ้าเพิ่มใหม่ต้อง restart service ด้วย
 
 อย่าลืม chmod ให้ read ได้
